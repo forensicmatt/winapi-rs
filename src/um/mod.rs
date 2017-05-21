@@ -51,6 +51,7 @@ pub mod gl;
 #[cfg(feature = "dwrite_2")] pub mod dwrite_2;
 #[cfg(feature = "dwrite_3")] pub mod dwrite_3;
 #[cfg(feature = "errhandlingapi")] pub mod errhandlingapi;
+#[cfg(feature = "eventtrace")] pub mod eventtrace;
 #[cfg(feature = "fileapi")] pub mod fileapi;
 #[cfg(feature = "handleapi")] pub mod handleapi;
 #[cfg(feature = "heapapi")] pub mod heapapi;
