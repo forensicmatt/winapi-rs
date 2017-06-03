@@ -6,6 +6,7 @@
 // except according to those terms.
 use shared::basetsd::ULONG64;
 use shared::guiddef::GUID;
+use shared::minwindef::LPFILETIME;
 use shared::ntdef::{ULONG, LONGLONG, ULONGLONG,LPWSTR, WCHAR, LONG, PVOID, VOID, USHORT, UCHAR, LARGE_INTEGER};
 use um::minwinbase::SYSTEMTIME;
 
@@ -95,7 +96,7 @@ STRUCT!{ struct EVENT_TRACE_HEADER_s {
 pub type PEVENT_TRACE_HEADER_s = *mut EVENT_TRACE_HEADER_s;
 
 UNION2!{ union EVENT_TRACE_HEADER_u {
-    [u64; 1],
+    [USHORT; 1],
     FieldTypeFlags FieldTypeFlags_mut: USHORT,
     EventTraveHeaderSt EventTraveHeaderSt_mut: EVENT_TRACE_HEADER_s,
 }}
@@ -108,19 +109,19 @@ STRUCT!{ struct EVENT_TRACE_HEADER_s2 {
 pub type PEVENT_TRACE_HEADER_s2 = *mut EVENT_TRACE_HEADER_s2;
 
 UNION2!{ union EVENT_TRACE_HEADER_u2 {
-    [u64; 1],
+    [ULONG; 1],
     Version Version_mut: ULONG,
     Class Class_mut: EVENT_TRACE_HEADER_s2,
 }}
 
 UNION2!{ union EVENT_TRACE_HEADER_u3 {
-    [u64; 1],
+    [ULONGLONG; 1],
     Guid Guid_mut: GUID,
     GuidPtr GuidPtr_mut: ULONGLONG,
 }}
 
 UNION2!{ union EVENT_TRACE_HEADER_u4 {
-    [u64; 1],
+    [ULONG64; 1],
     EventTraceHeaderSt3 EventTraceHeaderSt3_mut: EVENT_TRACE_HEADER_s3,
     ProcessorTime ProcessorTime_mut: ULONG64, 
     EventTraceHeaderSt4 EventTraceHeaderSt4_mut: EVENT_TRACE_HEADER_s4,
@@ -156,7 +157,7 @@ STRUCT!{ struct ETW_BUFFER_CONTEXT_u_s {
 pub type PETW_BUFFER_CONTEXT_u_s = *mut ETW_BUFFER_CONTEXT_u_s;
 
 UNION2!{ union ETW_BUFFER_CONTEXT_u {
-    [u64; 1],
+    [UCHAR; 2],
     EtwBufferContext_u_s EtwBufferContext_u_s_mut: ETW_BUFFER_CONTEXT_u_s,
     ProcessorIndex ProcessorIndex_mut: ETW_BUFFER_CONTEXT,
 }}
@@ -168,7 +169,7 @@ STRUCT!{ struct ETW_BUFFER_CONTEXT {
 pub type PETW_BUFFER_CONTEXT = *mut ETW_BUFFER_CONTEXT;
 
 UNION2!{ union EVENT_TRACE_u {
-    [u64; 1],
+    [ULONG; 1],
     ClientContext ClientContext_mut: ULONG,
     BufferContext BufferContext_mut: ETW_BUFFER_CONTEXT,
 }}
@@ -185,7 +186,7 @@ STRUCT!{ struct EVENT_TRACE {
 pub type PEVENT_TRACE = *mut EVENT_TRACE;
 
 UNION2!{ union EVENT_TRACE_LOGFILE_u {
-    [u32; 1],
+    [ULONG; 1],
     LogFileMode LogFileMode_mut: ULONG,
     ProcessTraceMode ProcessTraceMode_mut: ULONG, 
 }}
@@ -197,7 +198,7 @@ UNION2!{ union EVENT_TRACE_LOGFILE_u2 {
 }}
 
 UNION2!{union TRACE_LOGFILE_HEADER_u {
-    [u32; 1],
+    [ULONG; 1],
     Version Version_mut: ULONG,
     VersionDetail VersionDetail_mut: VersionDetail,
 }}
@@ -217,7 +218,7 @@ STRUCT!{struct TRACE_LOGFILE_HEADER_s {
 }}
 
 UNION2!{union TRACE_LOGFILE_HEADER_u2 {
-    [u64; 1],
+    [ULONG; 4],
     LogInstanceGuid LogInstanceGuid_mut: GUID,
     TraceLogFileHeader_s TraceLogFileHeader_s_mut: TRACE_LOGFILE_HEADER_s, 
 }}
@@ -269,5 +270,12 @@ extern "system" {
     
     pub fn CloseTrace (
         TraceHandle: TRACEHANDLE 
+    ) -> ULONG;
+
+    pub fn ProcessTrace(
+        HandleArray: PTRACEHANDLE,
+        HandleCount: ULONG,
+        StartTime: LPFILETIME,
+        EndTime: LPFILETIME,
     ) -> ULONG;
 }
