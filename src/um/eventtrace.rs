@@ -7,7 +7,7 @@
 use shared::basetsd::ULONG64;
 use shared::guiddef::GUID;
 use shared::minwindef::LPFILETIME;
-use shared::ntdef::{ULONG, LONGLONG, ULONGLONG,LPWSTR, WCHAR, LONG, PVOID, VOID, USHORT, UCHAR, LARGE_INTEGER};
+use shared::ntdef::{ULONG, LONGLONG, ULONGLONG,LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR, LARGE_INTEGER};
 use um::minwinbase::SYSTEMTIME;
 
 STRUCT!{struct TIME_ZONE_INFORMATION {
@@ -48,7 +48,7 @@ FN!{stdcall PEVENT_CALLBACK(
 
 FN!{stdcall PEVENT_RECORD_CALLBACK(
     pEventRecord: PEVENT_RECORD,
-) -> VOID}
+) -> ()}
 
 FN!{stdcall PEVENT_TRACE_BUFFER_CALLBACK(
    LogFile: PEVENT_TRACE_LOGFILE, 
@@ -115,7 +115,7 @@ UNION2!{ union EVENT_TRACE_HEADER_u2 {
 }}
 
 UNION2!{ union EVENT_TRACE_HEADER_u3 {
-    [ULONGLONG; 1],
+    [GUID; 1],
     Guid Guid_mut: GUID,
     GuidPtr GuidPtr_mut: ULONGLONG,
 }}
@@ -145,6 +145,7 @@ STRUCT!{ struct EVENT_TRACE_HEADER {
     un2: EVENT_TRACE_HEADER_u2,
     ThreadId: ULONG,
     ProcessId: ULONG,
+    TimeStamp: LARGE_INTEGER,
     un3: EVENT_TRACE_HEADER_u3,
     un4: EVENT_TRACE_HEADER_u4,
 }}
@@ -192,12 +193,12 @@ UNION2!{ union EVENT_TRACE_LOGFILE_u {
 }}
 
 UNION2!{ union EVENT_TRACE_LOGFILE_u2 {
-    [u64; 1],
+    [u32; 1] [u64; 1],
     EventCallback EventCallback_mut: PEVENT_CALLBACK,
     EventRecordCallback EventRecordCallback_mut: PEVENT_RECORD_CALLBACK,
 }}
 
-UNION2!{union TRACE_LOGFILE_HEADER_u {
+UNION2!{ union TRACE_LOGFILE_HEADER_u {
     [ULONG; 1],
     Version Version_mut: ULONG,
     VersionDetail VersionDetail_mut: VersionDetail,
@@ -217,8 +218,8 @@ STRUCT!{struct TRACE_LOGFILE_HEADER_s {
     CpuSpeedInMHz: ULONG,
 }}
 
-UNION2!{union TRACE_LOGFILE_HEADER_u2 {
-    [ULONG; 4],
+UNION2!{ union TRACE_LOGFILE_HEADER_u2 {
+    [GUID; 1],
     LogInstanceGuid LogInstanceGuid_mut: GUID,
     TraceLogFileHeader_s TraceLogFileHeader_s_mut: TRACE_LOGFILE_HEADER_s, 
 }}
