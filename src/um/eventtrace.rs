@@ -21,13 +21,55 @@ STRUCT!{struct TIME_ZONE_INFORMATION {
 }}
 pub type PTIME_ZONE_INFORMATION = *mut TIME_ZONE_INFORMATION;
 
+STRUCT!{ struct EVENT_DESCRIPTOR {
+    Id: USHORT,
+    Version: UCHAR,
+    Channel: UCHAR,
+    Level: UCHAR,
+    Opcode: UCHAR,
+    Task: USHORT,
+    Keyword: ULONGLONG,
+}}
+pub type PEVENT_DESCRIPTOR = *mut EVENT_DESCRIPTOR;
+
+STRUCT!{ struct EVENT_HEADER_EXTENDED_DATA_ITEM_s {
+    Linkage: USHORT,
+    Rserved2: USHORT,
+}}
+pub type PEVENT_HEADER_EXTENDED_DATA_ITEM_s = *mut EVENT_HEADER_EXTENDED_DATA_ITEM_s;
+
 STRUCT!{ struct EVENT_HEADER_EXTENDED_DATA_ITEM {
     Reserved1: USHORT,
+    ExtType: USHORT,
+    EventHeaderExtendedDataItem_s: EVENT_HEADER_EXTENDED_DATA_ITEM_s,
+    DataSize: USHORT,
+    DataPtr: ULONGLONG,
 }}
 pub type PEVENT_HEADER_EXTENDED_DATA_ITEM = *mut EVENT_HEADER_EXTENDED_DATA_ITEM;
 
+STRUCT! { struct EVENT_HEADER_u_s {
+    KernelTime: ULONG,
+    UserTime: ULONG,
+}}
+
+UNION2!{ union EVENT_HEADER_u {
+    [ULONG; 2],
+    EventHeader_u_s EventHeader_u_s_mut: EVENT_HEADER_u_s,
+    ProcessTime ProcessTime_mut: ULONG64,
+}}
+
 STRUCT!{ struct EVENT_HEADER { 
     Size: USHORT,
+    HeaderType: USHORT,
+    Flags: USHORT,
+    EventProperty: USHORT,
+    ThreadID: ULONG,
+    ProcessId: ULONG,
+    TimeStamp: LARGE_INTEGER,
+    ProviderId: GUID,
+    EventDescriptor: EVENT_DESCRIPTOR,
+    EventHeader_u: EVENT_HEADER_u,
+    ActivityId: GUID,
 }}
 pub type PEVENT_HEADER = *mut EVENT_HEADER;
 
