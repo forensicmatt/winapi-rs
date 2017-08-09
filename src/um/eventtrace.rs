@@ -7,7 +7,8 @@
 use shared::basetsd::ULONG64;
 use shared::guiddef::GUID;
 use shared::minwindef::LPFILETIME;
-use shared::ntdef::{ULONG, LONGLONG, ULONGLONG,LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR, LARGE_INTEGER};
+use shared::ntdef::{ULONG, LONGLONG, ULONGLONG, LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR,
+                    LARGE_INTEGER};
 use um::minwinbase::SYSTEMTIME;
 
 STRUCT!{struct TIME_ZONE_INFORMATION {
@@ -112,19 +113,19 @@ DEFINE_GUID!{
     DefaultTraceSecurityGuid,
     0x0811c1af, 0x7a07, 0x4a06, 0x82, 0xed, 0x86, 0x94, 0x55, 0xcd, 0xf7, 0x13}
 
-pub const PROCESS_TRACE_MODE_REAL_TIME: ULONG     = 0x00000100;
+pub const PROCESS_TRACE_MODE_REAL_TIME: ULONG = 0x00000100;
 pub const PROCESS_TRACE_MODE_RAW_TIMESTAMP: ULONG = 0x00001000;
-pub const PROCESS_TRACE_MODE_EVENT_RECORD: ULONG  = 0x10000000;
+pub const PROCESS_TRACE_MODE_EVENT_RECORD: ULONG = 0x10000000;
 
 pub const KERNEL_LOGGER_NAMEW: &'static str = "NT Kernel Logger";
 pub const GLOBAL_LOGGER_NAMEW: &'static str = "GlobalLogger";
-pub const EVENT_LOGGER_NAMEW:  &'static str = "EventLog";
-pub const DIAG_LOGGER_NAMEW:   &'static str = "DiagLog";
+pub const EVENT_LOGGER_NAMEW: &'static str = "EventLog";
+pub const DIAG_LOGGER_NAMEW: &'static str = "DiagLog";
 
 pub const KERNEL_LOGGER_NAMEA: &'static str = "NT Kernel Logger";
 pub const GLOBAL_LOGGER_NAMEA: &'static str = "GlobalLogger";
-pub const EVENT_LOGGER_NAMEA:  &'static str = "EventLog";
-pub const DIAG_LOGGER_NAMEA:   &'static str = "DiagLog";
+pub const EVENT_LOGGER_NAMEA: &'static str = "EventLog";
+pub const DIAG_LOGGER_NAMEA: &'static str = "DiagLog";
 
 pub const MAX_MOF_FIELDS: ULONG = 16;
 
@@ -306,19 +307,146 @@ STRUCT!{struct EVENT_TRACE_LOGFILE {
 }}
 pub type PEVENT_TRACE_LOGFILE = *mut EVENT_TRACE_LOGFILE;
 
-extern "system" {
-    pub fn OpenTraceW (
-        Logfile: PEVENT_TRACE_LOGFILE
-    ) -> TRACEHANDLE;
-    
-    pub fn CloseTrace (
-        TraceHandle: TRACEHANDLE 
-    ) -> ULONG;
+ENUM!{enum TDH_CONTEXT_TYPE {
+    TDH_CONTEXT_WPP_TMFFILE = 0,
+    TDH_CONTEXT_WPP_TMFSEARCHPATH = 1,
+    TDH_CONTEXT_WPP_GMT = 2,
+    TDH_CONTEXT_POINTERSIZE = 3,
+    TDH_CONTEXT_PDB_PATH = 4,
+    TDH_CONTEXT_MAXIMUM = 5,
+}}
 
-    pub fn ProcessTrace(
-        HandleArray: PTRACEHANDLE,
-        HandleCount: ULONG,
-        StartTime: LPFILETIME,
-        EndTime: LPFILETIME,
-    ) -> ULONG;
+STRUCT!{ struct TDH_CONTEXT {
+    ParameterValue: ULONGLONG,
+    ParameterType: TDH_CONTEXT_TYPE,
+    ParameterSize: ULONG,
+}}
+pub type PTDH_CONTEXT = *mut TDH_CONTEXT;
+
+ENUM!{ enum PROPERTY_FLAGS { 
+  PropertyStruct            = 0x1,
+  PropertyParamLength       = 0x2,
+  PropertyParamCount        = 0x4,
+  PropertyWBEMXmlFragment   = 0x8,
+  PropertyParamFixedLength  = 0x10,
+  PropertyParamFixedCount   = 0x20,
+  PropertyHasTags           = 0x40,
+  PropertyHasCustomSchema   = 0x80,
+}}
+
+STRUCT!{struct EVENT_PROPERTY_INFO_nonStructType {
+   InType: USHORT,
+   OutType: USHORT,
+   MapNameOffset: ULONG,
+}}
+pub type PEVENT_PROPERTY_INFO_nonStructType = *mut EVENT_PROPERTY_INFO_nonStructType;
+
+STRUCT!{struct EVENT_PROPERTY_INFO_StructType {
+   StructStartIndex: USHORT,
+   NumOfStructMembers: USHORT,
+   padding: ULONG,
+}}
+pub type PEVENT_PROPERTY_INFO_StructType = *mut EVENT_PROPERTY_INFO_StructType;
+
+STRUCT!{struct EVENT_PROPERTY_INFO_CustomSchemaType {
+      padding2: USHORT,
+      OutType: USHORT,
+      CustomSchemaOffset: ULONG,
+}}
+pub type PEVENT_PROPERTY_INFO_CustomSchemaType = *mut EVENT_PROPERTY_INFO_CustomSchemaType;
+
+UNION2!{union EVENT_PROPERTY_INFO_u1 {
+    [ULONG; 2],
+    nonStructType nonStructType_mut: EVENT_PROPERTY_INFO_nonStructType,
+    StructType StructType_mut: EVENT_PROPERTY_INFO_StructType,
+    CustomSchemaType CustomSchemaType_mut: EVENT_PROPERTY_INFO_CustomSchemaType,
+}}
+
+UNION2!{union EVENT_PROPERTY_INFO_u2 {
+    [ULONG; 2],
+    count count_mut: USHORT,
+    countPropertyIndex countPropertyIndex_mut: USHORT,
+}}
+
+UNION2!{union EVENT_PROPERTY_INFO_u3 {
+    [ULONG; 2],
+    length length_mut: USHORT,
+    lengthPropertyIndex lengthPropertyIndex_mut: USHORT,
+}}
+
+STRUCT!{struct EVENT_PROPERTY_INFO {
+    Flags: PROPERTY_FLAGS,
+    EventPropertyInfo_u1: EVENT_PROPERTY_INFO_u1,
+    EventPropertyInfo_u2: EVENT_PROPERTY_INFO_u2,
+    EventPropertyInfo_u3: EVENT_PROPERTY_INFO_u3,
+    Tags: ULONG,
+    Reserved: ULONG,
+}}
+pub type PEVENT_PROPERTY_INFO = *mut EVENT_PROPERTY_INFO;
+
+STRUCT!{ struct TRACE_EVENT_INFO_u_s {
+     Reserved: ULONG,
+     Tags: ULONG,
+}}
+pub type PTRACE_EVENT_INFO_u_s = *mut TRACE_EVENT_INFO_u_s;
+
+UNION2!{ union TRACE_EVENT_INFO_u {
+    [ULONG; 2],
+    Flags Flags_mut: TEMPLATE_FLAGS,
+    TraceEventInfo_u_s TraceEventInfo_u_s_mut: TRACE_EVENT_INFO_u_s,
+}}
+
+ENUM!{enum TEMPLATE_FLAGS { 
+  TEMPLATE_EVENT_DATA  = 1,
+  TEMPLATE_USER_DATA   = 2,
+}}
+
+ENUM!{enum DECODING_SOURCE { 
+  DecodingSourceXMLFile  = 0,
+  DecodingSourceWbem     = 1,
+  DecodingSourceWPP      = 2,
+  DecodingSourceTlg      = 3,
+}}
+
+STRUCT!{ struct TRACE_EVENT_INFO {
+    ProviderGuid: GUID,
+    EventGuid: GUID,
+    EventDescriptor: EVENT_DESCRIPTOR,
+    DecodingSource: DECODING_SOURCE,
+    ProviderNameOffset: ULONG,
+    LevelNameOffset: ULONG,
+    ChannelNameOffset: ULONG,
+    KeywordsNameOffset: ULONG,
+    TaskNameOffset: ULONG,
+    OpcodeNameOffset: ULONG,
+    EventMessageOffset: ULONG,
+    ProviderMessageOffset: ULONG,
+    BinaryXMLOffset: ULONG,
+    BinaryXMLSize: ULONG,
+    ActivityIDNameOffset: ULONG,
+    RelatedActivityIDNameOffset: ULONG,
+    PropertyCount: ULONG,
+    TopLevelPropertyCount: ULONG, 
+    TraceEventInfo_u: TRACE_EVENT_INFO_u, 
+    EventPropertyInfoArray: PEVENT_PROPERTY_INFO,
+}}
+pub type PTRACE_EVENT_INFO = *mut TRACE_EVENT_INFO;
+
+extern "system" {
+    pub fn OpenTraceW(Logfile: PEVENT_TRACE_LOGFILE) -> TRACEHANDLE;
+
+    pub fn CloseTrace(TraceHandle: TRACEHANDLE) -> ULONG;
+
+    pub fn ProcessTrace(HandleArray: PTRACEHANDLE,
+                        HandleCount: ULONG,
+                        StartTime: LPFILETIME,
+                        EndTime: LPFILETIME)
+                        -> ULONG;
+
+    pub fn TdhGetEventInformation(pEvent: PEVENT_RECORD,
+                                  TdhContextCount: ULONG,
+                                  pTdhContext: PTDH_CONTEXT,
+                                  pBuffer: PTRACE_EVENT_INFO,
+                                  pBufferSize: &ULONG)
+                                  -> ULONG;
 }
