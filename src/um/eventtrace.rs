@@ -10,6 +10,7 @@ use shared::minwindef::LPFILETIME;
 use shared::ntdef::{ULONG, LONGLONG, ULONGLONG, LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR,
                     LARGE_INTEGER};
 use um::minwinbase::SYSTEMTIME;
+//use um::winnt::ANYSIZE_ARRAY;
 
 STRUCT!{struct TIME_ZONE_INFORMATION {
     Bias: LONG,
@@ -363,24 +364,30 @@ UNION2!{union EVENT_PROPERTY_INFO_u1 {
 }}
 
 UNION2!{union EVENT_PROPERTY_INFO_u2 {
-    [ULONG; 2],
+    [USHORT; 1],
     count count_mut: USHORT,
     countPropertyIndex countPropertyIndex_mut: USHORT,
 }}
 
 UNION2!{union EVENT_PROPERTY_INFO_u3 {
-    [ULONG; 2],
+    [USHORT; 1],
     length length_mut: USHORT,
     lengthPropertyIndex lengthPropertyIndex_mut: USHORT,
 }}
 
+UNION2!{union EVENT_PROPERTY_INFO_u4 {
+    [ULONG; 1],
+    Tags Tags_mut: ULONG,
+    Reserved Reserved_mut: ULONG,
+}}
+
 STRUCT!{struct EVENT_PROPERTY_INFO {
     Flags: PROPERTY_FLAGS,
+    NameOffset: ULONG,
     EventPropertyInfo_u1: EVENT_PROPERTY_INFO_u1,
     EventPropertyInfo_u2: EVENT_PROPERTY_INFO_u2,
     EventPropertyInfo_u3: EVENT_PROPERTY_INFO_u3,
-    Tags: ULONG,
-    Reserved: ULONG,
+    EventPropertyInfo_u4: EVENT_PROPERTY_INFO_u4,
 }}
 pub type PEVENT_PROPERTY_INFO = *mut EVENT_PROPERTY_INFO;
 
@@ -391,7 +398,7 @@ STRUCT!{ struct TRACE_EVENT_INFO_u_s {
 pub type PTRACE_EVENT_INFO_u_s = *mut TRACE_EVENT_INFO_u_s;
 
 UNION2!{ union TRACE_EVENT_INFO_u {
-    [ULONG; 2],
+    [ULONG; 1],
     Flags Flags_mut: TEMPLATE_FLAGS,
     TraceEventInfo_u_s TraceEventInfo_u_s_mut: TRACE_EVENT_INFO_u_s,
 }}
@@ -428,7 +435,7 @@ STRUCT!{ struct TRACE_EVENT_INFO {
     PropertyCount: ULONG,
     TopLevelPropertyCount: ULONG, 
     TraceEventInfo_u: TRACE_EVENT_INFO_u, 
-    EventPropertyInfoArray: PEVENT_PROPERTY_INFO,
+    EventPropertyInfoArray: [EVENT_PROPERTY_INFO; 10],
 }}
 pub type PTRACE_EVENT_INFO = *mut TRACE_EVENT_INFO;
 

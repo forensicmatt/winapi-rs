@@ -108,7 +108,7 @@ const DATA: &'static [(&'static str, &'static [&'static str], &'static [&'static
     ("dwrite_2", &["basetsd", "d3d9types", "dcommon", "dwrite", "dwrite_1", "minwindef", "unknwnbase", "winnt"], &[]),
     ("dwrite_3", &["basetsd", "dcommon", "dwrite", "dwrite_1", "dwrite_2", "minwindef", "unknwnbase", "wingdi", "winnt"], &[]),
     ("errhandlingapi", &["basetsd", "minwindef", "winnt"], &[]),
-    ("eventtrace", &["basetsd", "guiddef", "ntdef", "minwinbase"], &[]),
+    ("eventtrace", &["basetsd", "guiddef", "ntdef", "minwinbase"], &["tdh"]),
     ("fileapi", &["minwinbase", "minwindef", "winnt"], &["kernel32"]),
     ("gl-gl", &[], &[]),
     ("handleapi", &["minwindef", "winnt"], &["kernel32"]),
