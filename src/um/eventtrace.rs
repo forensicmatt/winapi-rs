@@ -6,7 +6,7 @@
 // except according to those terms.
 use shared::basetsd::ULONG64;
 use shared::guiddef::GUID;
-use shared::minwindef::LPFILETIME;
+use shared::minwindef::{LPFILETIME, BYTE};
 use shared::ntdef::{ULONG, LONGLONG, ULONGLONG, LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR,
                     LARGE_INTEGER};
 use um::minwinbase::SYSTEMTIME;
@@ -447,12 +447,12 @@ ENUM!{enum MAP_FLAGS {
     EVENTMAP_INFO_FLAG_WBEM_VALUEMAP        = 8,
     EVENTMAP_INFO_FLAG_WBEM_BITMAP          = 16,
     EVENTMAP_INFO_FLAG_WBEM_FLAG            = 32,
-    EVENTMAP_INFO_FLAG_WBEM_NO_MAP          = 64
+    EVENTMAP_INFO_FLAG_WBEM_NO_MAP          = 64,
 }}
 
 ENUM!{enum MAP_VALUETYPE {
     EVENTMAP_ENTRY_VALUETYPE_ULONG   = 0,
-    EVENTMAP_ENTRY_VALUETYPE_STRING  = 1
+    EVENTMAP_ENTRY_VALUETYPE_STRING  = 1,
 }}
 
 UNION2!{union EVENT_MAP_INFO_u {
@@ -474,12 +474,13 @@ STRUCT!{struct EVENT_MAP_ENTRY {
 
 STRUCT!{struct EVENT_MAP_INFO {
     NameOffset: ULONG,
-    Flag: MAP_FLAG,
+    Flag: MAP_FLAGS,
     EntryCount: ULONG,
     EventMapInfo_u: EVENT_MAP_INFO_u,
     // TODO: ANYSIZE_ARRAY
     MapEntryArray: [EVENT_MAP_ENTRY; 10],
 }}
+type PEVENT_MAP_INFO = *mut EVENT_MAP_INFO;
 
 STRUCT!{ struct PROPERTY_DATA_DESCRIPTOR{
     PropertyName: ULONGLONG,
@@ -521,7 +522,7 @@ ENUM!{enum TDH_IN_TYPE {
     TDH_INTYPE_ANSICHAR,
     TDH_INTYPE_SIZET,
     TDH_INTYPE_HEXDUMP,
-    TDH_INTYPE_WBEMSID
+    TDH_INTYPE_WBEMSID,
 }}
 
 ENUM!{enum TDH_OUT_TYPE {
@@ -560,7 +561,7 @@ ENUM!{enum TDH_OUT_TYPE {
     TDH_OUTTYPE_HRESULT,             // End of winmeta outtypes.
     TDH_OUTTYPE_CULTURE_INSENSITIVE_DATETIME, //Culture neutral datetime string.
     TDH_OUTTYPE_REDUCEDSTRING = 300, // Start of TDH outtypes for WBEM.
-    TDH_OUTTYPE_NOPRINT
+    TDH_OUTTYPE_NOPRINT,
 }}
 
 extern "system" {
