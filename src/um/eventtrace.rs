@@ -435,9 +435,133 @@ STRUCT!{ struct TRACE_EVENT_INFO {
     PropertyCount: ULONG,
     TopLevelPropertyCount: ULONG, 
     TraceEventInfo_u: TRACE_EVENT_INFO_u, 
+    // TODO: ANYSIZE_ARRAY
     EventPropertyInfoArray: [EVENT_PROPERTY_INFO; 10],
 }}
 pub type PTRACE_EVENT_INFO = *mut TRACE_EVENT_INFO;
+
+ENUM!{enum MAP_FLAGS {
+    EVENTMAP_INFO_FLAG_MANIFEST_VALUEMAP    = 1,
+    EVENTMAP_INFO_FLAG_MANIFEST_BITMAP      = 2,
+    EVENTMAP_INFO_FLAG_MANIFEST_PATTERNMAP  = 4,
+    EVENTMAP_INFO_FLAG_WBEM_VALUEMAP        = 8,
+    EVENTMAP_INFO_FLAG_WBEM_BITMAP          = 16,
+    EVENTMAP_INFO_FLAG_WBEM_FLAG            = 32,
+    EVENTMAP_INFO_FLAG_WBEM_NO_MAP          = 64
+}}
+
+ENUM!{enum MAP_VALUETYPE {
+    EVENTMAP_ENTRY_VALUETYPE_ULONG   = 0,
+    EVENTMAP_ENTRY_VALUETYPE_STRING  = 1
+}}
+
+UNION2!{union EVENT_MAP_INFO_u {
+    [ULONG; 1],
+    MapEntryValueType MapEntryValueType_mut: MAP_VALUETYPE,
+    FormatStringOffset FormatStringOffset_mut: ULONG,
+}}
+
+UNION2!{union EVENT_MAP_ENTRY_u {
+    [ULONG; 1],
+    Value Value_mut: ULONG,
+    InputOffset InputOffset_mut: ULONG,
+}}
+
+STRUCT!{struct EVENT_MAP_ENTRY {
+    OutputOffset: ULONG,
+    EventMapEntry_u: EVENT_MAP_ENTRY_u,
+}}
+
+STRUCT!{struct EVENT_MAP_INFO {
+    NameOffset: ULONG,
+    Flag: MAP_FLAG,
+    EntryCount: ULONG,
+    EventMapInfo_u: EVENT_MAP_INFO_u,
+    // TODO: ANYSIZE_ARRAY
+    MapEntryArray: [EVENT_MAP_ENTRY; 10],
+}}
+
+STRUCT!{ struct PROPERTY_DATA_DESCRIPTOR{
+    PropertyName: ULONGLONG,
+    ArrayIndex: ULONG,
+    Reserved: ULONG,
+}}
+pub type PPROPERTY_DATA_DESCRIPTOR = *mut PROPERTY_DATA_DESCRIPTOR;
+
+ENUM!{enum TDH_IN_TYPE {
+    TDH_INTYPE_NULL,
+    TDH_INTYPE_UNICODESTRING,
+    TDH_INTYPE_ANSISTRING,
+    TDH_INTYPE_INT8,
+    TDH_INTYPE_UINT8,
+    TDH_INTYPE_INT16,
+    TDH_INTYPE_UINT16,
+    TDH_INTYPE_INT32,
+    TDH_INTYPE_UINT32,
+    TDH_INTYPE_INT64,
+    TDH_INTYPE_UINT64,
+    TDH_INTYPE_FLOAT,
+    TDH_INTYPE_DOUBLE,
+    TDH_INTYPE_BOOLEAN,
+    TDH_INTYPE_BINARY,
+    TDH_INTYPE_GUID,
+    TDH_INTYPE_POINTER,
+    TDH_INTYPE_FILETIME,
+    TDH_INTYPE_SYSTEMTIME,
+    TDH_INTYPE_SID,
+    TDH_INTYPE_HEXINT32,
+    TDH_INTYPE_HEXINT64,                    // End of winmeta intypes.
+    TDH_INTYPE_COUNTEDSTRING = 300,         // Start of TDH intypes for WBEM.
+    TDH_INTYPE_COUNTEDANSISTRING,
+    TDH_INTYPE_REVERSEDCOUNTEDSTRING,
+    TDH_INTYPE_REVERSEDCOUNTEDANSISTRING,
+    TDH_INTYPE_NONNULLTERMINATEDSTRING,
+    TDH_INTYPE_NONNULLTERMINATEDANSISTRING,
+    TDH_INTYPE_UNICODECHAR,
+    TDH_INTYPE_ANSICHAR,
+    TDH_INTYPE_SIZET,
+    TDH_INTYPE_HEXDUMP,
+    TDH_INTYPE_WBEMSID
+}}
+
+ENUM!{enum TDH_OUT_TYPE {
+    TDH_OUTTYPE_NULL,
+    TDH_OUTTYPE_STRING,
+    TDH_OUTTYPE_DATETIME,
+    TDH_OUTTYPE_BYTE,
+    TDH_OUTTYPE_UNSIGNEDBYTE,
+    TDH_OUTTYPE_SHORT,
+    TDH_OUTTYPE_UNSIGNEDSHORT,
+    TDH_OUTTYPE_INT,
+    TDH_OUTTYPE_UNSIGNEDINT,
+    TDH_OUTTYPE_LONG,
+    TDH_OUTTYPE_UNSIGNEDLONG,
+    TDH_OUTTYPE_FLOAT,
+    TDH_OUTTYPE_DOUBLE,
+    TDH_OUTTYPE_BOOLEAN,
+    TDH_OUTTYPE_GUID,
+    TDH_OUTTYPE_HEXBINARY,
+    TDH_OUTTYPE_HEXINT8,
+    TDH_OUTTYPE_HEXINT16,
+    TDH_OUTTYPE_HEXINT32,
+    TDH_OUTTYPE_HEXINT64,
+    TDH_OUTTYPE_PID,
+    TDH_OUTTYPE_TID,
+    TDH_OUTTYPE_PORT,
+    TDH_OUTTYPE_IPV4,
+    TDH_OUTTYPE_IPV6,
+    TDH_OUTTYPE_SOCKETADDRESS,
+    TDH_OUTTYPE_CIMDATETIME,
+    TDH_OUTTYPE_ETWTIME,
+    TDH_OUTTYPE_XML,
+    TDH_OUTTYPE_ERRORCODE,
+    TDH_OUTTYPE_WIN32ERROR,
+    TDH_OUTTYPE_NTSTATUS,
+    TDH_OUTTYPE_HRESULT,             // End of winmeta outtypes.
+    TDH_OUTTYPE_CULTURE_INSENSITIVE_DATETIME, //Culture neutral datetime string.
+    TDH_OUTTYPE_REDUCEDSTRING = 300, // Start of TDH outtypes for WBEM.
+    TDH_OUTTYPE_NOPRINT
+}}
 
 extern "system" {
     pub fn OpenTraceW(Logfile: PEVENT_TRACE_LOGFILE) -> TRACEHANDLE;
@@ -456,4 +580,27 @@ extern "system" {
                                   pBuffer: PTRACE_EVENT_INFO,
                                   pBufferSize: &ULONG)
                                   -> ULONG;
+
+    pub fn TdhGetPropertySize(pEvent: PEVENT_RECORD,
+                            TdhContextCount: ULONG,
+                            pTdhContext: PTDH_CONTEXT,
+                            PropertyDataCount: ULONG,
+                            pPropertyData: PPROPERTY_DATA_DESCRIPTOR,
+                            pPropertySize: &ULONG
+    ) -> ULONG;
+
+    pub fn TdhGetProperty(pEvent: PEVENT_RECORD,
+                            TdhContextCount: ULONG,
+                            pTdhContext: PTDH_CONTEXT,
+                            PropertyDataCount: ULONG,
+                            pPropertyData: PPROPERTY_DATA_DESCRIPTOR,
+                            BufferSize: ULONG,
+                            pBuffer: &BYTE
+    ) -> ULONG;
+
+    pub fn TdhGetEventMapInformation(pEvent: PEVENT_RECORD,
+        pMapName: LPWSTR,
+        pBuffer: PEVENT_MAP_INFO,
+        pBufferSize: &ULONG
+    ) -> ULONG;
 }
