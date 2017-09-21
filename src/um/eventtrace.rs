@@ -6,9 +6,9 @@
 // except according to those terms.
 use shared::basetsd::ULONG64;
 use shared::guiddef::GUID;
-use shared::minwindef::{LPFILETIME, BYTE};
+use shared::minwindef::{LPFILETIME, PBYTE};
 use shared::ntdef::{ULONG, LONGLONG, ULONGLONG, LPWSTR, WCHAR, LONG, PVOID, USHORT, UCHAR,
-                    LARGE_INTEGER};
+                    LARGE_INTEGER, HANDLE, LPCWSTR};
 use um::minwinbase::SYSTEMTIME;
 //use um::winnt::ANYSIZE_ARRAY;
 
@@ -132,6 +132,57 @@ pub const MAX_MOF_FIELDS: ULONG = 16;
 
 pub type TRACEHANDLE = ULONG64;
 pub type PTRACEHANDLE = *mut TRACEHANDLE;
+
+pub const EVENT_TRACE_FLAG_PROCESS             :ULONG = 0x00000001;
+pub const EVENT_TRACE_FLAG_THREAD              :ULONG = 0x00000002;
+pub const EVENT_TRACE_FLAG_IMAGE_LOAD          :ULONG = 0x00000004;
+
+pub const EVENT_TRACE_FLAG_DISK_IO             :ULONG = 0x00000100;
+pub const EVENT_TRACE_FLAG_DISK_FILE_IO        :ULONG = 0x00000200;
+
+pub const EVENT_TRACE_FLAG_MEMORY_PAGE_FAULTS  :ULONG = 0x00001000;
+pub const EVENT_TRACE_FLAG_MEMORY_HARD_FAULTS  :ULONG = 0x00002000;
+
+pub const EVENT_TRACE_FLAG_NETWORK_TCPIP       :ULONG = 0x00010000;
+
+pub const EVENT_TRACE_FLAG_REGISTRY            :ULONG = 0x00020000;
+pub const EVENT_TRACE_FLAG_DBGPRINT            :ULONG = 0x00040000;
+
+pub const EVENT_TRACE_FLAG_PROCESS_COUNTERS    :ULONG = 0x00000008;
+pub const EVENT_TRACE_FLAG_CSWITCH             :ULONG = 0x00000010;
+pub const EVENT_TRACE_FLAG_DPC                 :ULONG = 0x00000020;
+pub const EVENT_TRACE_FLAG_INTERRUPT           :ULONG = 0x00000040;
+pub const EVENT_TRACE_FLAG_SYSTEMCALL          :ULONG = 0x00000080;
+
+pub const EVENT_TRACE_FLAG_DISK_IO_INIT        :ULONG = 0x00000400;
+pub const EVENT_TRACE_FLAG_ALPC                :ULONG = 0x00100000;
+pub const EVENT_TRACE_FLAG_SPLIT_IO            :ULONG = 0x00200000;
+
+pub const EVENT_TRACE_FLAG_DRIVER              :ULONG = 0x00800000;
+pub const EVENT_TRACE_FLAG_PROFILE             :ULONG = 0x01000000;
+pub const EVENT_TRACE_FLAG_FILE_IO             :ULONG = 0x02000000;
+pub const EVENT_TRACE_FLAG_FILE_IO_INIT        :ULONG = 0x04000000;
+
+pub const EVENT_TRACE_FLAG_DISPATCHER          :ULONG = 0x00000800;
+pub const EVENT_TRACE_FLAG_VIRTUAL_ALLOC       :ULONG = 0x00004000;
+
+pub const EVENT_TRACE_FLAG_VAMAP               :ULONG = 0x00008000;
+pub const EVENT_TRACE_FLAG_NO_SYSCONFIG        :ULONG = 0x10000000;
+
+pub const EVENT_TRACE_FLAG_JOB                 :ULONG = 0x00080000;
+pub const EVENT_TRACE_FLAG_DEBUG_EVENTS        :ULONG = 0x00400000;
+
+pub const EVENT_TRACE_FLAG_EXTENSION           :ULONG = 0x80000000;
+pub const EVENT_TRACE_FLAG_FORWARD_WMI         :ULONG = 0x40000000;
+pub const EVENT_TRACE_FLAG_ENABLE_RESERVE      :ULONG = 0x20000000;
+
+pub const EVENT_TRACE_REAL_TIME_MODE           :ULONG = 0x00000100;
+pub const EVENT_TRACE_DELAY_OPEN_FILE_MODE     :ULONG = 0x00000200;
+pub const EVENT_TRACE_BUFFERING_MODE           :ULONG = 0x00000400;
+pub const EVENT_TRACE_PRIVATE_LOGGER_MODE      :ULONG = 0x00000800;
+pub const EVENT_TRACE_ADD_HEADER_MODE          :ULONG = 0x00001000;
+
+pub const  WNODE_FLAG_TRACED_GUID              :ULONG = 0x00020000;
 
 STRUCT!{ struct EVENT_TRACE_HEADER_s {
     HeaderType: UCHAR,
@@ -436,7 +487,7 @@ STRUCT!{ struct TRACE_EVENT_INFO {
     TopLevelPropertyCount: ULONG, 
     TraceEventInfo_u: TRACE_EVENT_INFO_u, 
     // TODO: ANYSIZE_ARRAY
-    EventPropertyInfoArray: [EVENT_PROPERTY_INFO; 10],
+    EventPropertyInfoArray: [EVENT_PROPERTY_INFO; 20],
 }}
 pub type PTRACE_EVENT_INFO = *mut TRACE_EVENT_INFO;
 
@@ -478,9 +529,9 @@ STRUCT!{struct EVENT_MAP_INFO {
     EntryCount: ULONG,
     EventMapInfo_u: EVENT_MAP_INFO_u,
     // TODO: ANYSIZE_ARRAY
-    MapEntryArray: [EVENT_MAP_ENTRY; 10],
+    MapEntryArray: [EVENT_MAP_ENTRY; 20],
 }}
-type PEVENT_MAP_INFO = *mut EVENT_MAP_INFO;
+pub type PEVENT_MAP_INFO = *mut EVENT_MAP_INFO;
 
 STRUCT!{ struct PROPERTY_DATA_DESCRIPTOR{
     PropertyName: ULONGLONG,
@@ -564,7 +615,67 @@ ENUM!{enum TDH_OUT_TYPE {
     TDH_OUTTYPE_NOPRINT,
 }}
 
+STRUCT!{struct WNODE_HEADER_u1_s {
+    Version: ULONG,
+    Linkage: ULONG,
+}}
+
+UNION2!{union WNODE_HEADER_u1 {
+    [ULONG64; 1],
+    HistoricalContext HistoricalContext_mut: ULONG64,
+    WnodeHeader_u1_s  WnodeHeader_u1_s_mut: WNODE_HEADER_u1_s,
+}}
+
+UNION2!{union WNODE_HEADER_u2 {
+   [LONG; 1],
+   CountLost CountLost_mut: ULONG,
+   KernelHandle KernelHandle_mut: HANDLE,
+   TimeStamp TimeStamp_mut: LARGE_INTEGER, 
+}}
+
+STRUCT!{ struct WNODE_HEADER{
+    BufferSize: ULONG,
+    ProviderId: ULONG,
+    WnodeHeader_u1: WNODE_HEADER_u1,
+    WnodeHeader_u2: WNODE_HEADER_u2,
+    Guid: GUID,
+    ClientContext: ULONG,
+    Flags: ULONG,
+}}
+
+UNION2!{union EVENT_TRACE_PROPERTIES_u {
+    [LONG; 1],
+    AgeLimit AgeLimit_mut: LONG,
+    FlushThreshold FlushThreshold_mut: LONG, 
+}}
+
+STRUCT!{ struct EVENT_TRACE_PROPERTIES {
+    Wnode: WNODE_HEADER,
+
+    BufferSize: ULONG,
+    MinimumBuffers: ULONG,
+    MaximumBuffers: ULONG,
+    MaximumFileSize: ULONG,
+    LogFileMode: ULONG,
+    FlushTimer: ULONG,
+    EnableFlags: ULONG,
+    EventTracePropertyes_u: EVENT_TRACE_PROPERTIES_u,
+
+    NamberOfBuffers: ULONG,
+    FreeBuffers: ULONG,
+    EventsLost: ULONG,          
+    BuffersWritten: ULONG,      
+    LogBuffersLost: ULONG,      
+    RealTimeBuffersLost: ULONG, 
+    LoggerThreadId: HANDLE,     
+    LogFileNameOffset: ULONG,   
+    LoggerNameOffset: ULONG,    
+}}
+pub type PEVENT_TRACE_PROPERTIES  = *mut EVENT_TRACE_PROPERTIES;
+
 extern "system" {
+    pub fn StartTraceW(SessionHandle: PTRACEHANDLE, SessionName: LPCWSTR, Properties: PEVENT_TRACE_PROPERTIES) -> ULONG;
+
     pub fn OpenTraceW(Logfile: PEVENT_TRACE_LOGFILE) -> TRACEHANDLE;
 
     pub fn CloseTrace(TraceHandle: TRACEHANDLE) -> ULONG;
@@ -596,7 +707,7 @@ extern "system" {
                             PropertyDataCount: ULONG,
                             pPropertyData: PPROPERTY_DATA_DESCRIPTOR,
                             BufferSize: ULONG,
-                            pBuffer: &BYTE
+                            pBuffer: PBYTE
     ) -> ULONG;
 
     pub fn TdhGetEventMapInformation(pEvent: PEVENT_RECORD,
