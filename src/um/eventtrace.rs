@@ -54,7 +54,7 @@ STRUCT! { struct EVENT_HEADER_u_s {
     UserTime: ULONG,
 }}
 
-UNION2!{ union EVENT_HEADER_u {
+UNION!{ union EVENT_HEADER_u {
     [ULONG; 2],
     EventHeader_u_s EventHeader_u_s_mut: EVENT_HEADER_u_s,
     ProcessTime ProcessTime_mut: ULONG64,
@@ -190,7 +190,7 @@ STRUCT!{ struct EVENT_TRACE_HEADER_s {
 }}
 pub type PEVENT_TRACE_HEADER_s = *mut EVENT_TRACE_HEADER_s;
 
-UNION2!{ union EVENT_TRACE_HEADER_u {
+UNION!{ union EVENT_TRACE_HEADER_u {
     [USHORT; 1],
     FieldTypeFlags FieldTypeFlags_mut: USHORT,
     EventTraveHeaderSt EventTraveHeaderSt_mut: EVENT_TRACE_HEADER_s,
@@ -203,19 +203,19 @@ STRUCT!{ struct EVENT_TRACE_HEADER_s2 {
 }}
 pub type PEVENT_TRACE_HEADER_s2 = *mut EVENT_TRACE_HEADER_s2;
 
-UNION2!{ union EVENT_TRACE_HEADER_u2 {
+UNION!{ union EVENT_TRACE_HEADER_u2 {
     [ULONG; 1],
     Version Version_mut: ULONG,
     Class Class_mut: EVENT_TRACE_HEADER_s2,
 }}
 
-UNION2!{ union EVENT_TRACE_HEADER_u3 {
+UNION!{ union EVENT_TRACE_HEADER_u3 {
     [GUID; 1],
     Guid Guid_mut: GUID,
     GuidPtr GuidPtr_mut: ULONGLONG,
 }}
 
-UNION2!{ union EVENT_TRACE_HEADER_u4 {
+UNION!{ union EVENT_TRACE_HEADER_u4 {
     [ULONG64; 1],
     EventTraceHeaderSt3 EventTraceHeaderSt3_mut: EVENT_TRACE_HEADER_s3,
     ProcessorTime ProcessorTime_mut: ULONG64, 
@@ -252,7 +252,7 @@ STRUCT!{ struct ETW_BUFFER_CONTEXT_u_s {
 }}
 pub type PETW_BUFFER_CONTEXT_u_s = *mut ETW_BUFFER_CONTEXT_u_s;
 
-UNION2!{ union ETW_BUFFER_CONTEXT_u {
+UNION!{ union ETW_BUFFER_CONTEXT_u {
     [UCHAR; 2],
     EtwBufferContext_u_s EtwBufferContext_u_s_mut: ETW_BUFFER_CONTEXT_u_s,
     ProcessorIndex ProcessorIndex_mut: ETW_BUFFER_CONTEXT,
@@ -264,7 +264,7 @@ STRUCT!{ struct ETW_BUFFER_CONTEXT {
 }}
 pub type PETW_BUFFER_CONTEXT = *mut ETW_BUFFER_CONTEXT;
 
-UNION2!{ union EVENT_TRACE_u {
+UNION!{ union EVENT_TRACE_u {
     [ULONG; 1],
     ClientContext ClientContext_mut: ULONG,
     BufferContext BufferContext_mut: ETW_BUFFER_CONTEXT,
@@ -281,19 +281,19 @@ STRUCT!{ struct EVENT_TRACE {
 }}
 pub type PEVENT_TRACE = *mut EVENT_TRACE;
 
-UNION2!{ union EVENT_TRACE_LOGFILE_u {
+UNION!{ union EVENT_TRACE_LOGFILE_u {
     [ULONG; 1],
     LogFileMode LogFileMode_mut: ULONG,
     ProcessTraceMode ProcessTraceMode_mut: ULONG, 
 }}
 
-UNION2!{ union EVENT_TRACE_LOGFILE_u2 {
+UNION!{ union EVENT_TRACE_LOGFILE_u2 {
     [u32; 1] [u64; 1],
     EventCallback EventCallback_mut: PEVENT_CALLBACK,
     EventRecordCallback EventRecordCallback_mut: PEVENT_RECORD_CALLBACK,
 }}
 
-UNION2!{ union TRACE_LOGFILE_HEADER_u {
+UNION!{ union TRACE_LOGFILE_HEADER_u {
     [ULONG; 1],
     Version Version_mut: ULONG,
     VersionDetail VersionDetail_mut: VersionDetail,
@@ -313,7 +313,7 @@ STRUCT!{struct TRACE_LOGFILE_HEADER_s {
     CpuSpeedInMHz: ULONG,
 }}
 
-UNION2!{ union TRACE_LOGFILE_HEADER_u2 {
+UNION!{ union TRACE_LOGFILE_HEADER_u2 {
     [GUID; 1],
     LogInstanceGuid LogInstanceGuid_mut: GUID,
     TraceLogFileHeader_s TraceLogFileHeader_s_mut: TRACE_LOGFILE_HEADER_s, 
@@ -407,26 +407,26 @@ STRUCT!{struct EVENT_PROPERTY_INFO_CustomSchemaType {
 }}
 pub type PEVENT_PROPERTY_INFO_CustomSchemaType = *mut EVENT_PROPERTY_INFO_CustomSchemaType;
 
-UNION2!{union EVENT_PROPERTY_INFO_u1 {
+UNION!{union EVENT_PROPERTY_INFO_u1 {
     [ULONG; 2],
     nonStructType nonStructType_mut: EVENT_PROPERTY_INFO_nonStructType,
     StructType StructType_mut: EVENT_PROPERTY_INFO_StructType,
     CustomSchemaType CustomSchemaType_mut: EVENT_PROPERTY_INFO_CustomSchemaType,
 }}
 
-UNION2!{union EVENT_PROPERTY_INFO_u2 {
+UNION!{union EVENT_PROPERTY_INFO_u2 {
     [USHORT; 1],
     count count_mut: USHORT,
     countPropertyIndex countPropertyIndex_mut: USHORT,
 }}
 
-UNION2!{union EVENT_PROPERTY_INFO_u3 {
+UNION!{union EVENT_PROPERTY_INFO_u3 {
     [USHORT; 1],
     length length_mut: USHORT,
     lengthPropertyIndex lengthPropertyIndex_mut: USHORT,
 }}
 
-UNION2!{union EVENT_PROPERTY_INFO_u4 {
+UNION!{union EVENT_PROPERTY_INFO_u4 {
     [ULONG; 1],
     Tags Tags_mut: ULONG,
     Reserved Reserved_mut: ULONG,
@@ -448,7 +448,7 @@ STRUCT!{ struct TRACE_EVENT_INFO_u_s {
 }}
 pub type PTRACE_EVENT_INFO_u_s = *mut TRACE_EVENT_INFO_u_s;
 
-UNION2!{ union TRACE_EVENT_INFO_u {
+UNION!{ union TRACE_EVENT_INFO_u {
     [ULONG; 1],
     Flags Flags_mut: TEMPLATE_FLAGS,
     TraceEventInfo_u_s TraceEventInfo_u_s_mut: TRACE_EVENT_INFO_u_s,
@@ -506,13 +506,13 @@ ENUM!{enum MAP_VALUETYPE {
     EVENTMAP_ENTRY_VALUETYPE_STRING  = 1,
 }}
 
-UNION2!{union EVENT_MAP_INFO_u {
+UNION!{union EVENT_MAP_INFO_u {
     [ULONG; 1],
     MapEntryValueType MapEntryValueType_mut: MAP_VALUETYPE,
     FormatStringOffset FormatStringOffset_mut: ULONG,
 }}
 
-UNION2!{union EVENT_MAP_ENTRY_u {
+UNION!{union EVENT_MAP_ENTRY_u {
     [ULONG; 1],
     Value Value_mut: ULONG,
     InputOffset InputOffset_mut: ULONG,
@@ -620,13 +620,13 @@ STRUCT!{struct WNODE_HEADER_u1_s {
     Linkage: ULONG,
 }}
 
-UNION2!{union WNODE_HEADER_u1 {
+UNION!{union WNODE_HEADER_u1 {
     [ULONG64; 1],
     HistoricalContext HistoricalContext_mut: ULONG64,
     WnodeHeader_u1_s  WnodeHeader_u1_s_mut: WNODE_HEADER_u1_s,
 }}
 
-UNION2!{union WNODE_HEADER_u2 {
+UNION!{union WNODE_HEADER_u2 {
    [LONG; 1],
    CountLost CountLost_mut: ULONG,
    KernelHandle KernelHandle_mut: HANDLE,
@@ -643,7 +643,7 @@ STRUCT!{ struct WNODE_HEADER{
     Flags: ULONG,
 }}
 
-UNION2!{union EVENT_TRACE_PROPERTIES_u {
+UNION!{union EVENT_TRACE_PROPERTIES_u {
     [LONG; 1],
     AgeLimit AgeLimit_mut: LONG,
     FlushThreshold FlushThreshold_mut: LONG, 
