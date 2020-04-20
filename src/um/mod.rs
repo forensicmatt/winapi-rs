@@ -108,6 +108,7 @@ pub mod gl;
 #[cfg(feature = "enclaveapi")] pub mod enclaveapi;
 #[cfg(feature = "endpointvolume")] pub mod endpointvolume;
 #[cfg(feature = "errhandlingapi")] pub mod errhandlingapi;
+#[cfg(feature = "eventtrace")] pub mod eventtrace;
 #[cfg(feature = "evntcons")] pub mod evntcons;
 #[cfg(feature = "exdisp")] pub mod exdisp;
 #[cfg(feature = "fibersapi")] pub mod fibersapi;
